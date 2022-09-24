@@ -1,29 +1,24 @@
 let accounts;
-
 // METAMASK CONNECTION
 window.addEventListener("DOMContentLoaded", async () => {
   const welcomeH1 = document.getElementById("welcomeH1");
   const welcomeH2 = document.getElementById("welcomeH2");
   const welcomeP = document.getElementById("welcomeP");
-
   welcomeH1.innerText = welcome_h1;
   welcomeH2.innerText = welcome_h2;
   welcomeP.innerHTML = welcome_p;
-
   if (window.ethereum) {
     window.web3 = new Web3(window.ethereum);
     checkChain();
   } else if (window.web3) {
     window.web3 = new Web3(window.web3.currentProvider);
   }
-
   if (window.web3) {
     // Check if User is already connected by retrieving the accounts
     await window.web3.eth.getAccounts().then(async (addr) => {
       accounts = addr;
     });
   }
-
   const splide = new Splide(".splide", {
     type: "loop",
     arrows: false,
@@ -36,7 +31,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     autoHeight: true,
   });
   splide.mount();
-
   updateConnectStatus();
   if (MetaMaskOnboarding.isMetaMaskInstalled()) {
     window.ethereum.on("accountsChanged", (newAccounts) => {
@@ -45,7 +39,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
-
 const updateConnectStatus = async () => {
   const onboarding = new MetaMaskOnboarding();
   const onboardButton = document.getElementById("connectWallet");
@@ -99,7 +92,6 @@ const updateConnectStatus = async () => {
     };
   }
 };
-
 async function checkChain() {
   let chainId = 0;
   if(chain === 'rinkeby') {
@@ -153,7 +145,6 @@ async function checkChain() {
     }
   }
 }
-
 async function loadInfo() {
   window.info = await window.contract.methods.getInfo().call();
   const publicMintActive = await contract.methods.mintingActive().call();
@@ -165,7 +156,6 @@ async function loadInfo() {
   const mintContainer = document.getElementById("mintContainer");
   const mintButton = document.getElementById("mintButton");
   const spinner = document.getElementById("spinner");
-
   let startTime = "";
   if (publicMintActive) {
     mainHeading.innerText = h1_public_mint;
@@ -208,27 +198,23 @@ async function loadInfo() {
     mainText.innerText = p_presale_coming_soon;
     actionButton.innerText = button_presale_coming_soon;
   }
-
   const clockdiv = document.getElementById("countdown");
   clockdiv.setAttribute("data-date", startTime);
   countdown();
-
   // HIDE SPINNER
   spinner.classList.add('hidden');
-
   // SHOW CARD
   setTimeout(() => {
     const countdownCard = document.querySelector('.countdown');
     countdownCard.classList.add('show-card');
   }, 1000);
-
   let priceType = '';
   if(chain === 'rinkeby' || chain === 'ethereum') {
     priceType = 'ETH';
   } else if (chain === 'polygon') {
     priceType = 'MATIC';
   }
-  const price = web3.utils.fromWei(info.deploymentConfig.mintPrice, 'ether');
+  const price = web3.utils.fromWei(info.runtimeConfig.publicMintPrice, 'ether');
   const pricePerMint = document.getElementById("pricePerMint");
   const maxPerMint = document.getElementById("maxPerMint");
   const totalSupply = document.getElementById("totalSupply");
@@ -238,7 +224,6 @@ async function loadInfo() {
   maxPerMint.innerText = `${info.deploymentConfig.tokensPerMint}`;
   totalSupply.innerText = `${info.deploymentConfig.maxSupply}`;
   mintInput.setAttribute("max", info.deploymentConfig.tokensPerMint);
-
   // MINT INPUT
   const mintIncrement = document.getElementById("mintIncrement");
   const mintDecrement = document.getElementById("mintDecrement");
@@ -273,7 +258,6 @@ async function loadInfo() {
   };
   mintButton.onclick = mint;
 }
-
 function setTotalPrice() {
   const mintInput = document.getElementById("mintInput");
   const mintInputValue = parseInt(mintInput.value);
@@ -285,7 +269,7 @@ function setTotalPrice() {
     mintInput.disabled = true;
     return;
   }
-  const totalPriceWei = BigInt(info.deploymentConfig.mintPrice) * BigInt(mintInputValue);
+  const totalPriceWei = BigInt(info.runtimeConfig.publicMintPrice) * BigInt(mintInputValue);
   
   let priceType = '';
   if(chain === 'rinkeby' || chain === 'ethereum') {
@@ -298,7 +282,6 @@ function setTotalPrice() {
   mintButton.disabled = false;
   mintInput.disabled = false;
 }
-
 async function mint() {
   const mintButton = document.getElementById("mintButton");
   mintButton.disabled = true;
@@ -306,7 +289,7 @@ async function mint() {
   mintButton.innerHTML = spinner;
 
   const amount = parseInt(document.getElementById("mintInput").value);
-  const value = BigInt(info.deploymentConfig.mintPrice) * BigInt(amount);
+  const value = BigInt(info.runtimeConfig.publicMintPrice) * BigInt(amount);
   const publicMintActive = await contract.methods.mintingActive().call();
   const presaleMintActive = await contract.methods.presaleActive().call();
 
@@ -332,7 +315,6 @@ async function mint() {
         mainText.innerText = mint_failed;
         mintButton.innerText = button_public_mint;
         mintButton.disabled = false;
-
         console.log("Failed to mint!");
       }
     } catch(e) {
@@ -340,7 +322,6 @@ async function mint() {
       mainText.innerText = mint_failed;
       mintButton.innerText = button_public_mint;
       mintButton.disabled = false;
-
       console.log(e);
     }
   } else if (presaleMintActive) {
@@ -369,7 +350,6 @@ async function mint() {
         mainText.innerText = mint_failed;
         mintButton.innerText = button_presale_mint_whitelisted;
         mintButton.disabled = false;
-
         console.log("Failed to mint!");
       }
     } catch(e) {
@@ -377,7 +357,6 @@ async function mint() {
       mainText.innerText = mint_failed;
       mintButton.innerText = button_presale_mint_whitelisted;
       mintButton.disabled = false;
-
       // console.log(e);
     }
   }
